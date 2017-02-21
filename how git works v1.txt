@@ -362,3 +362,30 @@ go to github page such as https://github.com/Hendrixer/node-source-map-support
 click fork 
   this copies a fork to your github page
 you can now clone onto your local machine
+
+
+Adding an existing project to github using the command line
+1. create working directory
+2. create project in working directory
+3. move to working directory on git command line
+4. create a new repository on github https://github.com/DavidMarcoGonzales/Understanding-GIT.git
+5. git init - to initialize local repository
+6. git add . - to add files to local repository
+7. git commit -m "First commit" 
+8. on github page, copy url name
+9. git remote add origin repositoryURL
+10. git remote -v
+11. git push origin master
+
+From github
+…or create a new repository on the command line
+echo "# Understanding-GIT" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/DavidMarcoGonzales/Understanding-GIT.git
+
+…or push an existing repository from the command line
+git remote add origin https://github.com/DavidMarcoGonzales/Understanding-GIT.git
+git push -u origin master
+git push -u origin master
