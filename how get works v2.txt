@@ -1,0 +1,1086 @@
+3 main areas of git
+  working directory
+  index (staging area)
+  commit
+
+Git stores content as
+  value key pairs
+  withing working directory
+  sha1 and file/folder name is the key value pair
+  sha1 is content
+  name is file/folder name
+keys are sha1s
+values are pieces of content
+Git - any sequence of bytes is 
+  calculated and stored as a sha1
+Content is stored not the file and content
+
+David@IELaptop MINGW64 ~
+$ git hash-object "Apple Pie"
+fatal: Cannot open 'Apple Pie': No such file or directory
+
+David@IELaptop MINGW64 ~
+$ echo "Apple Pie" | git hash-object --stdin
+23991897e13e47ed0adb91a0082c31c82fe0cbe5
+
+David@IELaptop MINGW64 ~
+$ echo "Apple Pie\n" | git hash-object --stdin
+ecdb6102c701aff72087d2239a60154b3e03fe8e
+
+Create a hidden directory named
+  .git
+  acts as a repository
+  stores or percists content
+
+David@IELaptop MINGW64 ~/gitdemo
+$ git init
+Initialized empty Git repository in C:/Users/David/gitdemo/.git/
+
+Save sha1 for content "Apple Pie" in our new .git repositiry
+David@IELaptop MINGW64 ~/gitdemo (master)
+$ echo "Apple Pie" | git hash-object --stdin -w
+23991897e13e47ed0adb91a0082c31c82fe0cbe5
+Saved as ~/gitdemo/.git/objects/23/
+  in the file named with the remaining digits of the sha1
+  991897e13e47ed0adb91a0082c31c82fe0cbe5
+
+To find the type of file, in this case, blob
+David@IELaptop MINGW64 ~/gitdemo (master)
+$ git cat-file 23991897e13e47ed0adb91a0082c31c82fe0cbe5 -t
+blob
+
+To get content
+David@IELaptop MINGW64 ~/gitdemo (master)
+$ git cat-file 23991897e13e47ed0adb91a0082c31c82fe0cbe5 -p
+Apple Pie
+
+git init
+  creates .git hidden directory acts as a repository
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git init
+Initialized empty Git repository in C:/Users/David/gitdemo/cookbook/.git/
+
+This shows the .git hidden directory
+  contains a head and a master branch but
+  there is no initial commit
+  contains no commit, tree, blob sha1s
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ ls -a
+./  ../  .git/  menu.txt  recipes/
+
+git status 
+  displays modified folders, files and tags
+  in the working directory
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+
+Initial commit
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committe                                                                                       d)
+
+        menu.txt
+        recipes/
+
+nothing added to commit but untracked files present (use "git                                                                                        add" to track)
+
+git add
+  moves modified folders and files to index (staging area)
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git add menu.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git add recipes/
+
+git status - in this case
+  shows the modified files have been successfully added to 
+  index (staging area)
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+
+Initial commit
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+
+        new file:   menu.txt
+        new file:   recipes/README.txt
+        new file:   recipes/apple_pie.txt
+
+
+git commit -m "Descriptive statement"
+  moves files in index (staging area) to commit
+  working directory is clean
+  index (staging area) is clean
+  commit is newly created sha1
+    containing the sha1 of the 
+    directory containing the hidden .git directory
+    and all sha1s of sub directories and files
+    excluding the sha1 of the hidden .git directory
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git commit -m "First commit!"
+[master (root-commit) 6988761] First commit!
+ Committer: David Gonzales <David Gonzales>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 3 files changed, 3 insertions(+)
+ create mode 100644 menu.txt
+ create mode 100644 recipes/README.txt
+ create mode 100644 recipes/apple_pie.txt
+
+git status - in this case
+  shows that git index (staging area) is now clean
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+nothing to commit, working tree clean
+
+git log
+  shows list of commits in chronological order
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git log
+commit 698876117e45200a6aa4c43483300663c982b921
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 17:28:58 2017 -0700
+
+    First commit!
+
+git cat-file -p "sha1 of our commit"
+  contains sha1 of tree for our working directory
+  committer information
+  "descriptive statement" 
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git cat-file -p 698876117e45200a6aa4c43483300663c982b921
+tree 46624f2d142b3a74e3aac65f691cdfdbb42ce022
+author David Gonzales <David Gonzales> 1487636938 -0700
+committer David Gonzales <David Gonzales> 1487636938 -0700
+
+First commit!
+
+git cat-file -p "sha1 tree of our working directory"
+  contains files and sub folders
+  as blobs and trees
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git cat-file -p 46624f2d142b3a74e3aac65f691cdfdbb42ce022
+100644 blob 9eed377bbdeb4aa5d14f8df9cd50fed042f41023    menu.txt
+040000 tree 5458b1e1046e66dd8dbb249fc4ff64ab29ff90a9    recipes
+
+git cat-file -p "sha1 of our blob"
+  displays "Apple Pie"
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git cat-file -p 9eed377bbdeb4aa5d14f8df9cd50fed042f41023
+Apple Pie
+
+git cat-file -p "sha1 of the tree within the working tree"
+  displays content of both files
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git cat-file -p 5458b1e1046e66dd8dbb249fc4ff64ab29ff90a9
+100644 blob 37c0180c056cc7bf91b1046c4990ec5ee71668f2    README.txt
+100644 blob 9eed377bbdeb4aa5d14f8df9cd50fed042f41023    apple_pie.txt
+
+As you can see above
+  apple_pie.txt and menu.txt 
+  have same sha1
+  showing sha1s are file/folder content
+  without the file/folder name
+
+Modify menu.txt add Cheesecake
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ notepad menu.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   menu.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git add menu.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+        modified:   menu.txt
+
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git commit -m "Add cake"
+[master 120a8d6] Add cake
+ Committer: David Gonzales <David Gonzales>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+nothing to commit, working tree clean
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git log
+commit 120a8d6e6291af1378fabc922a9937d6b14179b8
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 18:26:25 2017 -0700
+
+    Add cake
+
+commit 698876117e45200a6aa4c43483300663c982b921
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 17:28:58 2017 -0700
+
+    First commit!
+
+git cat-file -p "of second commit"
+  shows parent sha1
+  where the first commit did not have a parent
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git cat-file -p 120a8d6e6291af1378fabc922a9937d6b14179b8
+tree 8a913a85d035f9b3f4097087520dec7cfbada5b0
+parent 698876117e45200a6aa4c43483300663c982b921
+author David Gonzales <David Gonzales> 1487640385 -0700
+committer David Gonzales <David Gonzales> 1487640385 -0700
+
+Add cake
+
+git count-objects
+  counts the number of commit, tree, blob, and tag objects
+  2 commits
+  3 trees
+  3 blobs
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git count-objects
+8 objects, 0 kilobytes
+
+git is
+  a value key mapper - value and key pair
+  a persistant map - saved in a directory store called .git/
+  a stupid content tracker - tracks changing content over time
+  a revision control system - branches and merges
+
+git branch
+  finds current branch
+  the branch pointed to by the head
+
+master branch 
+  is the very first branch created with the initial commit
+  it is a file with the name master
+  .git/refs/heads/master
+  it contains the sha1 of the current commit
+  which contains the sha1 of the working directory 
+  which contains the sha1s of all files and folders
+  which recursively contain the sha1 of all files and folders
+  the hidden .git/ directory is ignored and no sha1 is created for it.
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ cat .git/refs/heads/master
+120a8d6e6291af1378fabc922a9937d6b14179b8
+
+A branch
+  such as master branch
+  just a reference to a commit
+  does so by containing the sha1 of the commit
+
+Master branch is not special
+  it is just the original branch
+  created with the initial commit
+
+Manually create a branch by 
+  creating a file in the .git/refs/heads/ directory and 
+  add a sha1
+
+git branch newbranchname
+  creates a new branch
+  with the name newbranchname
+  containing the sha1 of the current commit
+  sha1 of lisa branch is exactly the same as master branch
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git branch lisa
+
+git branch
+  lists all the branches
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git branch
+  lisa
+* master
+
+Mechanics of Current Branch
+Asterisk in (* master)
+  represents current branch
+  HEAD determines the current branch
+  .git/HEAD contains a reference to current branch
+  for instance the contents of head is (ref: refs/heads/master
+)
+  .git/refs/heads/master contains a sha1 of current commit
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ cat .git/refs/heads/master
+120a8d6e6291af1378fabc922a9937d6b14179b8
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ cat .git/refs/heads/lisa
+120a8d6e6291af1378fabc922a9937d6b14179b8
+
+Lisa branch 
+  contains the same sha1 as current branch master
+ 
+a branch
+  is just a reference to a commit
+
+Modify recipes/apple_pie.txt
+  using vim or notepad
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ notepad recipes/apple_pie.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   recipes/apple_pie.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git add recipes/apple_pie.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+        modified:   recipes/apple_pie.txt
+
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git commit -m "Add recipe"
+[master 0fd1c5f] Add recipe
+ Committer: David Gonzales <David Gonzales>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git log
+commit 0fd1c5f9e3b23e0b9bd2851ec74940a3b24ed21d
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 21:38:19 2017 -0700
+
+    Add recipe
+
+commit 120a8d6e6291af1378fabc922a9937d6b14179b8
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 18:26:25 2017 -0700
+
+    Add cake
+
+commit 698876117e45200a6aa4c43483300663c982b921
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 17:28:58 2017 -0700
+
+    First commit!
+
+git commit
+  created a new commit sha1
+  git looked inside head to find current branch
+  which in this case is the master branch
+  git then replaced the sha1 in the master brach with the new commit sha1
+
+Note
+  contents of master branch changed
+  contents of head did not change
+git checkout lisa does 2 things
+  changes content of head to point to ref: 
+  refs/heads/lisa
+  it also replaces contents of working directory
+  with the unsha1 of the of the lisa commit
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git checkout lisa
+Switched to branch 'lisa'
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ git branch
+* lisa
+  master
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ cat .git/HEAD
+ref: refs/heads/lisa
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ cat recipes/apple_pie.txt
+Apple Pie
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ git log
+commit 120a8d6e6291af1378fabc922a9937d6b14179b8
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 18:26:25 2017 -0700
+
+    Add cake
+
+commit 698876117e45200a6aa4c43483300663c982b921
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 17:28:58 2017 -0700
+
+    First commit!
+
+git checkout branchname means
+  replace old reference of head with a reference to a different commit
+  update working area from the unsha1 of that commit pointed to by head
+
+Modify lisa's version of the pie
+  then commit it
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ notepad recipes/apple_pie.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ git status
+On branch lisa
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   recipes/apple_pie.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ git add recipes/apple_pie.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ git status
+On branch lisa
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+        modified:   recipes/apple_pie.txt
+
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ git commit -m "Add Lisa's version of the pie"
+[lisa 6b5377a] Add Lisa's version of the pie
+ Committer: David Gonzales <David Gonzales>
+Your name and email address were configured automatically base                                                                                       d
+on your username and hostname. Please check that they are accu                                                                                       rate.
+You can suppress this message by setting them explicitly. Run                                                                                        the
+following command and follow the instructions in your editor t                                                                                       o edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commi                                                                                       t with:
+
+    git commit --amend --reset-author
+
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ git log
+commit 6b5377a4de43d066630e2c4109d122531b7e89cf
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 22:29:59 2017 -0700
+
+    Add Lisa's version of the pie
+
+commit 120a8d6e6291af1378fabc922a9937d6b14179b8
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 18:26:25 2017 -0700
+
+    Add cake
+
+commit 698876117e45200a6aa4c43483300663c982b921
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 17:28:58 2017 -0700
+
+    First commit!
+
+git 
+  created a new commit
+  looked at the reference in head to find the current branch
+  in this case it was lisa
+  it then replaced the sha1 in the lisa branch with the sha1 of the new commit
+  at this point two commits diverged
+
+
+Let's Merge!
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ git checkout master
+Switched to branch 'master'
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git branch
+  lisa
+* master
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ cat recipes/apple_pie.txt
+Apple Pie
+
+pre-made pastry
+1/2 cup butter
+3 tablespoons flour
+1 cup sugar
+8 Granny Smith apples
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git merge lisa
+Auto-merging recipes/apple_pie.txt
+CONFLICT (content): Merge conflict in recipes/apple_pie.txt
+Automatic merge failed; fix conflicts and then commit the result.
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master|MERGING)
+$ notepad recipes/apple_pie.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master|MERGING)
+$ git status
+On branch master
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+
+        both modified:   recipes/apple_pie.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master|MERGING)
+$ git add recipes/apple_pie.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master|MERGING)
+$ git status
+On branch master
+All conflicts fixed but you are still merging.
+  (use "git commit" to conclude merge)
+
+Changes to be committed:
+
+        modified:   recipes/apple_pie.txt
+
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master|MERGING)
+$ git commit
+[master 427187b] Merge branch 'lisa'
+ Committer: David Gonzales <David Gonzales>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+nothing to commit, working tree clean
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git log
+commit 427187bb5e8a9051e55841b878b18bd4f558ea70
+Merge: 0fd1c5f 6b5377a
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 22:40:18 2017 -0700
+
+    Merge branch 'lisa'
+
+commit 6b5377a4de43d066630e2c4109d122531b7e89cf
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 22:29:59 2017 -0700
+
+    Add Lisa's version of the pie
+
+commit 0fd1c5f9e3b23e0b9bd2851ec74940a3b24ed21d
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 21:38:19 2017 -0700
+
+    Add recipe
+
+commit 120a8d6e6291af1378fabc922a9937d6b14179b8
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 18:26:25 2017 -0700
+
+    Add cake
+
+commit 698876117e45200a6aa4c43483300663c982b921
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 17:28:58 2017 -0700
+
+    First commit!
+
+
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git cat-file -p 42718
+tree 99862a13b548fd72669e33017cc9980fcd6fd3ff
+parent 0fd1c5f9e3b23e0b9bd2851ec74940a3b24ed21d
+parent 6b5377a4de43d066630e2c4109d122531b7e89cf
+author David Gonzales <David Gonzales> 1487655618 -0700
+committer David Gonzales <David Gonzales> 1487655618 -0700
+
+Merge branch 'lisa'
+
+Master branch
+  points to new commit tree sha1 of working directory
+  merged commits have 2 or more parent commit sha1s
+
+git object references
+initial commit object contain sha1s of only
+  tree objects
+  blob objects
+  but not parent commit object
+  since no parent commit object exists
+subsequent commit objects contain sha1s of 
+  tree objects
+  blob objects
+  parent commit objects
+tree objects contain sha1 of the content of
+  other trees
+  blobs
+
+References between commits
+  are used to track history
+All other references are 
+  used to track content
+
+git travels back and forth in time by
+  loading content of working directory
+  for each commit checked out
+  and does not worry about content of other commits
+  from other times
+  no commit is ever changed
+  commits are immutable
+
+git content management
+  just focus on commits
+  worry about folders and files only when adding to a commit
+  a commit manages the state of project at a certain time
+  focus on history, how commits to each other
+
+git doesn't care about working directory
+  all content is actually stored in the get repository
+  you can recreate whatever working area when you checkout
+  but cares about the objects in the database
+  not the working directory
+
+objects in database are
+  immutable and persistant
+files in working directory
+  are ephemeral, transitory and temporary
+
+Now forget about trees and blobs for the rest of the time
+
+Fast Forward
+
+Merge Lisa with Master
+  master already has lisa's content
+  so another commit is unnecessary
+  lisa branch just moves to point to same commit as master
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git checkout lisa
+Switched to branch 'lisa'
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ git merge master
+Updating 6b5377a..427187b
+Fast-forward
+ recipes/apple_pie.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+
+
+
+
+
+
+
+
+
+
+Detached head
+git checkout master
+  head has a reference to master
+git checkout commit sha1
+  head contains sha1 of a commit
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (lisa)
+$ git checkout master
+Switched to branch 'master'
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git log
+commit 427187bb5e8a9051e55841b878b18bd4f558ea70
+Merge: 0fd1c5f 6b5377a
+Author: David Gonzales <David Gonzales>
+Date:   Mon Feb 20 22:40:18 2017 -0700
+
+    Merge branch 'lisa'
+
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git checkout 4271
+Note: checking out '4271'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -b with the checkout command again. Example:
+
+  git checkout -b <new-branch-name>
+
+HEAD is now at 427187b... Merge branch 'lisa'
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook ((427187b...))
+$ cat .git/HEAD
+427187bb5e8a9051e55841b878b18bd4f558ea70
+  contains a sha1 for a commit
+  not a reference to  
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook ((427187b...))
+$ git branch
+* (HEAD detached at 427187b)
+  lisa
+  master
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook ((427187b...))
+$ notepad recipes/apple_pie.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook ((427187b...))
+$ git status
+HEAD detached at 427187b
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   recipes/apple_pie.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook ((427187b...))
+$ git add recipes/
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook ((427187b...))
+$ git commit -m "Add more apples"
+[detached HEAD 74e4fc7] Add more apples
+ Committer: David Gonzales <David Gonzales>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+
+git commit
+  added a new commit
+  moved the head to point to he new commit
+
+We can discard changes by checking out master
+  head then contains the reference to master once again
+  previous commits pointed to by head
+  no longer have a reference
+  they are garbage collected
+
+You can prevent commits from being garbage collected
+  by creating a branch pointing to the commit pointed to by the head
+
+
+Three Rules
+  Current branch tracks new commits
+    head doesn't move
+    current branch moves
+    Unless head is point to a commit
+      then head moves
+  When you move to another commit
+    Git updates your working directory
+    from the file and blob objects stored in the commit object 
+  Unreachable objects are garbage collected
+
+
+git clone urlOfGitHubRepository
+  first creates the working directory
+  then creates the hidden .git/ directory inside the working directory
+  then git performs a checkout master branch creating 
+  all the files and folders in the working directory 
+  only the current commit is cloned
+  with head, master branch, origin/master
+  with references to history 
+  pointed at remote github
+
+.git/ contains 
+  entire repository
+  history
+David@IELaptop MINGW64 ~/gitdemo
+$ git clone https://github.com/nusco/cookbook.git
+Cloning into 'cookbook'...
+remote: Counting objects: 47, done.
+remote: Total 47 (delta 0), reused 0 (delta 0), pack-reused 47
+Unpacking objects: 100% (47/47), done.
+
+David@IELaptop MINGW64 ~/gitdemo
+$ ls
+cookbook/
+
+David@IELaptop MINGW64 ~/gitdemo
+$ cd cookbook/
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ 
+
+git clone githubUrlRepo
+  creates a config file
+  with a default remote
+  with the name origin
+  url = url we cloned from
+  creates a local branch named master
+  that maps over the master branch of the remote
+cat .git/config
+  displays config file
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ cat .git/config
+[core]
+        repositoryformatversion = 0
+        filemode = false
+        bare = false
+        logallrefupdates = true
+        symlinks = false
+        ignorecase = true
+[remote "origin"]
+        url = https://github.com/nusco/cookbook.git
+        fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+        remote = origin
+        merge = refs/heads/master
+
+git branch
+  only shows local branch
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git branch
+* master
+
+git branch -all
+  displays all branches
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git branch --all
+* master
+  remotes/origin/HEAD -> origin/master
+  remotes/origin/lisa
+  remotes/origin/master
+  remotes/origin/nogood
+  remotes/origin/spaghetti
+
+git show-ref master
+  displays all branches with master in their names
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git show-ref master
+704182f5e2925fbdc03f9874d35ce696c21e9a3d refs/heads/master
+704182f5e2925fbdc03f9874d35ce696c21e9a3d refs/remotes/origin/master
+
+git show-ref lisa
+  displays all branches with lisa in their names
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git show-ref lisa
+ecbebe6601f5730ed6157f95175204cdf4d0542a refs/remotes/origin/lisa
+
+a local branch
+  is a reference to a commit
+a remote branch
+  is the same thing
+  a reference to a remote commit
+When you synchronize with a remote
+  git updates remote brances
+
+Make changes in local file
+  to demonstrate synchronization
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ notepad recipes/apple_pie.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   recipes/apple_pie.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git add recipes/apple_pie.txt
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+        modified:   recipes/apple_pie.txt
+
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git commit -m "Add lemon juice to the apple pie"
+[master 0fc2954] Add lemon juice to the apple pie
+ Committer: David Gonzales <David Gonzales>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 1 file changed, 1 deletion(-)
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git log -2
+commit 0fc295430f65cd9b64d3212d4146f0d4f36c5892
+Author: David Gonzales <David Gonzales>
+Date:   Tue Feb 21 01:33:35 2017 -0700
+
+    Add lemon juice to the apple pie
+
+commit 704182f5e2925fbdc03f9874d35ce696c21e9a3d
+Author: Paolo Perrotta <paolo.nusco.perrotta@gmail.com>
+Date:   Thu Feb 25 12:45:26 2016 +0100
+
+    Add lemon juice to the apple pie
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git show-ref master
+0fc295430f65cd9b64d3212d4146f0d4f36c5892 refs/heads/master
+0fc295430f65cd9b64d3212d4146f0d4f36c5892 refs/remotes/origin/master
+
+sha1s are not out of synchronization
+  refs/heads/master contains sha1 of the new commit
+  refs/remotes/origin/master contains sha1 of old commit
+
+
+git push
+  pushes objects to remote
+  master branch on origin moves to point to the latest commit
+  updates our remote branch to point to the new master on origin
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git push
+
+
+David@IELaptop MINGW64 ~/gitdemo/cookbook (master)
+$ git show-ref master
+0fc295430f65cd9b64d3212d4146f0d4f36c5892 refs/heads/master
+704182f5e2925fbdc03f9874d35ce696c21e9a3d refs/remotes/origin/master
+
+synchronizing with a remote
+origin
+  has 1 commit
+  master pointing to that one commit
+local
+  has the same commit as origin
+  master pointing to the local commit
+  origin/master also pointing to the local commit
+
+Now we add 1 commit
+local
+  master pointing to the new local commit
+  origin/master pointing to the old local commit
+origin
+  still has 1 commit
+  master still pointing to that one commit
+
+git push
+  if there are no changes to remote master branch
+  all we do is copy new commit from local to origin
+origin
+  moves master to point to new commit
+local
+  update origin/master to point to new commit
+
+git fetch
+local
+  we copy new commit object from remote to local machine
+  origin/master is updated to point to the newly copied commit
+
+git merge
+local
+  updates master to point to merged commit
+  origin/master still points to newly downloaded commit
+
+git push
+origin
+  push old local master and new local merged master to origin
+  master on origin is updated to point to new merged commit
+local
+  origin/master is updated to point to new merged commit
+  
+git pull = git fetch + git merge
+
+So
+  git pull
+  git push

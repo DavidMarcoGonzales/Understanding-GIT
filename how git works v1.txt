@@ -1,0 +1,364 @@
+.git directory stores
+  everything as sha1s
+  commit objects
+  folder or directory objects
+  file objects
+windows directory 
+  aka working directory where we load un-sha1ed files pointed to by the head
+Example directory tree
+.
+  menu.txt
+  recipes
+    README.txt
+    apple_pie.txt
+git init creates 
+  .git/ directory inside the working directory that contains
+  head that points to 
+  master branch that points to 
+  initial commit that points to the 
+  working directory containing the .git folder
+  that contains all tree and blob sha1s of all the directory recurisively
+  except for the .git/ directory
+git status = gets status of files
+Three different statuses
+  unstaged
+  staged
+  committed
+git add file.txt = adds file.txt to committing area
+git add folder/ = adds folder and all it's contents to commiting area
+git commit -m "First commit!" = commits files
+git log = displays list of commits
+sha1s representing the same content (ie a sha1 with the same number) 
+  will never be recreated
+  if the content produces the same sha1
+  folders will point to the initial sha1.
+  even if folders have the different names with same content.
+If 2 files have the same content (ie. same sha1)
+  2 folders are point to the same sha1
+  if one of the files get's modified
+  the modified file will get a new sha1
+  the folder will point to a new sha1 with that independant file name
+  other folder will point to old sha1
+head is text referencing a branch (ie. ref: refs/head/master) it is not a sha1
+  master is a branch pointer (reference) containing a sha1 of a commit
+  initial commit is a sha1 that contains the metadata and the following
+    tree sha1 of the contents of ./ directory , as
+      blob sha1 of content of menu.txt 
+      tree sha1 of contents of recipes directory which contains list of recipes directory as
+        blob sha1 of content of README.txt
+        blob sha1 of content of apple_pie.txt
+names of trees and blobs are not in the objects themselves
+  the are stored in the containing tree
+  the same blob with different names can be pointed at by different trees
+  the name of the blob may be different in each tree
+  the content is the same
+    
+*** Change content of file.txt ***
+git status 
+add add file.txt
+git cat-file -p sha11kdhajdfllakjdf to print out content of sha1
+git object model
+  blob
+  tree
+  commit
+  annotated tag
+git count-objects
+
+*** Branches ***
+git init creates the 
+  the head that points to the 
+  first branch, "Master" Branch that points to the 
+  first commit that points to the working directory
+  that contains the sha1 of all objects in directory except for
+  .git/ directory
+git branch
+  displays the branches in git
+  First branch is the master branch
+  An asterick is placed next to current branch
+All commits contain 
+  sha1 of working directory
+  which contain all recursive
+  sha1 objects
+A branch
+  is a pointer reference to a commit
+  many branches can point to the same commit
+Master branch 
+  not anything special
+  just like any branch
+  we can rename it or even delete it.
+git branch lisa
+  new branch named lisa
+  creates a new branch (reference to a commit) 
+  references the same commit as current branch
+Head
+  is a reference to a branch (Such as Master) that references a commit
+  there can be only one head, but many branches
+  is what determines the current branch
+  Whatever the head is pointing at is the current branch
+  head is not a sha1
+cat ./git/HEAD prints out
+  ref: refs/heads/master(or other branch)
+When there is more than 1 branch, you change a file, and you call git commit
+  A commit is exicuted creating a new commit object
+  Git looks inside the head file to find the current branch
+  The current branch moves to point to the new commit object
+  Head pointer does not move but still points to current branch pointer
+
+*** Checkout ***
+When you commit a checkout
+  split forms following lisa's path and not the other branch
+git checkout lisa
+  lisa becomes the current branch
+  git points the head pointer to point to lisa
+  git replaces files and folders in working area (directory) with those of lisa stored in .git folder
+now let's modify files in lisa working space
+git commit -m "Add Lisa's version of the pie"
+  git adds the commit to the object database
+  git looks in head pointer to find the current branch pointer (lisa branch)
+  git then has the current branch pointer (lisa branch) point to the new commit
+  a split is created.
+
+*** Merge Lisa's branch to Master Branch ***
+git checkout master
+  head must point to file you want to merge into
+git merge lisa
+  merge operation started
+if changes are in the same file
+  merge process is still pending, not finished or discarded
+  a conflict has occured
+  we must fix then save conflicts
+open file with webstorm or another editor
+  fix changes and save changes manually
+git status
+  to see if we are out of conflict
+  to see if it is not staged to commit
+git add recipes/apple_pie.txt
+  git adds to staging area
+git commit 
+  After conflicts have been resolved, added to staging area, we can commit to finish the merge process
+  because it's a merge it adds a message automatically
+  we can override with a -m 'message of my own'
+  a new commit has been created
+  git looks inside head pointer to find current branch 
+  changes current branch to point to new commit
+  lisa pointer does not change
+git log
+  to get sha1 of most current commit
+git cat-file -p sha1
+  the new commit has 2 or more parents instead of 1
+  parent 1 from master
+  parent 2 from lisa
+  parent ....
+Objects in database are
+  immutable 
+  persistent
+Files in working directory 
+A merge is a commit
+  just with 2 or more parents
+Commits only
+  if new file
+    new sha1 is created
+    points to new sha1
+  non-modified files
+    remains pointing to unmodified sha1
+*** References ***
+References
+  init master commit doesn't reference another commit
+  secondary commits reference 1 or 2 parent commits
+  all commits can references trees
+  all commits can references blobs  
+  all trees can reference trees
+  all trees canreference blobs
+References between commits 
+  are used to track history
+References between all other objects
+  are used to track content
+  content
+*** Fast Forward - Merge Lisa with Master ***
+After merge
+git checkout lisa
+git merge master
+  git has lisa's pointer sha1 point to same sha1 as master
+*** Detatched Head ***
+git checkout master
+  head points to a branch
+git checkout sha1
+  head points directly to a commit
+  head does not contain a (ref: refs/heads/master(or other branch))
+  head now contains the sha1 of the new commit
+Make changes and commit
+  new commit is created
+  head sha1 reference is changed to the new commit
+  master branch still contains previous commit sha1
+  master branch does not change
+Make changes and a second commit
+If you don't like the changes
+  you can checkout previous branch
+git checkout master
+  head now contains the sha1 of master branch
+  previous commits above master branch will be garbage collected
+  isolated commits can only be accessed by their sha1 (must write down)
+  before they are garbage collected
+  they will not be listed in git log
+
+*** 3 Rules ***
+1. Current branch, (pointed to by head) tracks new commits
+2. When you move to another commit with checkout
+   git updates your working directory with checkouted files
+3. Unreachable objects are garbage collected
+
+*** Rebase ***
+Rebase
+  creates new commit chain on top of second commit chain from the first commit chain
+  the new commit chain has the same sha1s for the content
+  but differ in the parent sha1s
+  old commits are orphined
+  old commits are garbage colleted
+git checkout spaghetti
+  head now contains sha1 of spaghetti branch
+  spaghetti branch contains sha1 of commits with spaghetti recipe
+git rebase master
+  spaghetti branch is not disconnected from its base
+  new spaghetti branch commits are created on top of master branch
+  with different parents and same content
+  master branch is now new base.
+  original spaghetti commit chain is no longer referenced
+  original spaghetti commit chain is garbage collected
+  spaghetti branch is "rebased" on top of master as its new base
+git checkout master
+  head now contains master branch sha1
+git rebase spaghetti = git merge spaghetti = fast forward
+  master branch is updated
+  it now contains spaghetti commit sha1
+tags 
+  branches that don't move
+
+*** Git Distributed Version Control ***
+git clone githubhttpsuri
+git clone https://github.com/nusco/cookbook.git creates 
+  cookbook folder containing 
+  all file and recursive folder blobs in the "current" commit only and creates 
+  .git/ directory inside cookbook folder which contain the 
+  head containing a reference to the "master" branch that points to the 
+  current commit that contains the sha1 of the
+  working directory cookbook folder containing any
+  recursive sha1s of folders and blobs
+contents of working directory, in this case cookbook
+  are not important
+  did not need to be cloned
+  can recreate them from .git/ directory
+ls .git/
+  displays content of ./git directory
+ls .git/objects/
+  displays the contents of owr working directory
+  in sha1 format
+github contains history of all commits while
+  cloned version on my pc only contains 
+  current commit containing the 
+  sha1 of the master branch containing 
+  sha1 of the working directory cookbook containing
+  sha1 recursively down
+vim .git/config file contains config information about project
+  my .git/config file is different from instructors config file
+  but he must have changed it in order to protect his git config file.
+.git/config from another project
+******
+[core]
+        repositoryformatversion = 0
+        filemode = false
+        bare = false
+        logallrefupdates = true
+        symlinks = false
+        ignorecase = true
+[remote "origin"]
+        url = https://github.com/DavidMarcoGonzales/React-Redux-Node-Mongo.git
+        fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+        remote = origin
+        merge = refs/heads/master
+******
+Local branch is only branch downloaded to computer
+$ git branch
+* master
+
+Display all branches. 
+  Top one is local master brach
+  second line is pointer to origin/master
+$ git branch --all
+* master
+  remotes/origin/HEAD -> origin/master
+  remotes/origin/lisa
+  remotes/origin/master
+  remotes/origin/nogood
+  remotes/origin/spaghetti
+
+Show references
+$ git show-ref master
+704182f5e2925fbdc03f9874d35ce696c21e9a3d refs/heads/master
+704182f5e2925fbdc03f9874d35ce696c21e9a3d refs/remotes/origin/master
+
+$ git show-ref lisa
+ecbebe6601f5730ed6157f95175204cdf4d0542a refs/remotes/origin/lisa
+
+The following
+***
+vim recipes/apple_pie.txt
+  make changes
+git add recipes/
+git status
+  shows modified
+git commit -m "Add lemon juice to the apple pie"
+***
+New local commit
+  generates a new "local" commit pointing to the 
+  working directory in current state with
+  head still pointing to the 
+  same master branch now containing shaw of the
+  new local commit
+Remote master branch
+  remains pointing to the original commit
+  on its remote computer
+  
+git log -2 shows the 
+  sha1 from the new commit
+  sha1 of the previous commit
+git show-ref master shows
+  the sha1 of the remote current commit as that of the 
+  old sha1 of the local log
+
+*** git push (if no changes on remote commit) ***
+  copies new sha1 of the new commit github
+  remote head still points to the same master pointer
+  changes the sha1 in the remote master to the 
+  sha1 of the new commit
+  both local and remote sha1s are now the same once again
+  origin/master on local now contains same sha1 as master
+  
+
+Synchronizing with a remote
+git fetch
+  fetches new commit from origin
+  origin/master old commit sha1 is replaced with
+  new sha1 from newly fetched commit
+git merge creates a 
+  new commit
+  replaces sha1 in master with new commit with newly created commit
+git push pushes 
+  newly created commit to origin and 
+  old local master commit up to origin
+  master in origin has it's sha1 updated to point to new commit on origin machine
+  origin/master has it's sha1 updated to point to new commit on local machine
+
+git pull is the same 
+  git fetch then 
+  git merge
+
+So to synchronize with remote when we have modified local do the following
+git pull
+git push
+
+*** Forks ***
+go to github page such as https://github.com/Hendrixer/node-source-map-support
+click fork 
+  this copies a fork to your github page
+you can now clone onto your local machine
