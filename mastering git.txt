@@ -1,0 +1,200 @@
+The 4 Areas
+Stash <-> Working Directory <-> Index <-> Repository
+
+Two Questions
+1. How does this git command move data across the 4 areas
+2. How does this command change the repository
+
+The 3 Main Areas
+Working Directory <-> Index <-> Repository
+
+Working Area 
+  Projects directory on file system
+  Contains actual files
+  Very important to the user
+  Not very important for git since it is a very temporary place
+
+Repository 
+  is the .git/ folder and sub folders
+  most important data stored in object database
+  .git/objects
+  
+git objects 
+  are blobs, trees, commits
+  are immutable
+  linked together with referrences to represent project history
+
+commit 
+  is like a snapshot of working area
+  can share same objects such as trees and blobs
+  points to parent(s) commits
+  initial commit is an exception since it is the first commit
+
+Git history
+  refers to commit objects
+  not blobs and trees
+
+a branch
+  is a reference to a commit
+  and since commits are linked together
+  is an entry point to a history of commits
+
+multiple branches 
+  that are multiple slices of history
+  same commit can belong to multiple branches
+
+head
+  special pointer
+  there can be only one head
+  usually points to a branch
+  points to current branch
+  that branch points to a commit
+
+git checkout differentBranch
+  moves head to point to different branch
+  makes different branch the current head
+
+unreferenced commits
+  are garbage collected
+
+index
+  also called staging area
+  is "like" the area between working area and repository
+  stage your changes by adding them from the working area to index
+  allowing you to then commit
+  contains current commit
+  may or may not contain modified files
+  stores files in a binary file
+
+git status - clean
+  working area and repository are in-line
+  files in the repository means they are in the current commit of a repository
+  repository also contains the entire history of the project in the commit chain
+  while working directory only contain the file and folder objects without commits
+  index is exactly the same as working area we can even diff without any changes
+  index contains no commits
+  doesn't mean index is empty but contains the same files and folders in current commit of repository
+  the three areas are all aligned
+  all contain the same exact files 
+  where repository, in addition to the files, contain
+  the current commit along with the history of commits
+
+git diff
+  gives difference of file/folder objects between working space and index 
+
+git diff --cached
+  gives difference of file/folder objects between index and repository
+  excluds the commit object
+
+
+Work flow - moving files from left to right - git add, git commit
+1. Edit File = vim, notepad, ide = Working Area
+2. Stage File = git add fileName = move to index
+3. Commit File = git commit = move files from index to repository and reference with commit
+
+0. initial state
+   files in working directory, index and repository are all aligned
+1. notepad, vim, ide menu.txt
+   git status shows content of menu.txt file has been changed but not staged (moved to index)
+   git diff shows content in menu.txt in working area and content in menu.txt in index are NOT aligned
+     + chicken Tikka Masala
+2. git add menu.txt
+   git status shows the documents in working area and index are aligned
+   git diff shows modified content in menu.txt from working directory replaces previous contents in menu.txt file in index
+   git diff --cached shows files in index and repository are NOT aligned
+     + chicken Tikka Masala
+3. git commit -m "Add Tika Masala to menu"
+   git status shows repository is updated
+   new git objects were created
+   new commit was added
+   new commit points to new shapshot of working directory
+   current branch moved up to point to new commit
+   new commit points to previous commit	
+   content of all files from working directory to index to repository are aligned
+   git diff - shows no diffs
+   git diff --chached - shows no diffs
+
+Work Flow - moving files from Right to Left - checkout
+Checkout does two things
+1. In repository, git moves head to point to different branch making that branch the new current commit
+2. git copies files from the new current commit to both the working area and the index
+   git status - now clean
+
+git branch
+  lisa
+* master
+  nogood
+  spaghetti
+git diff lisa master
+git checkout lisa
+
+Removing files from the index only without removing fromworking direction
+New Scenario
+1. New File in Working directory
+2. New file added to index
+
+git rm Copyright.txt
+  displays warning 
+  will not let you remove file without a flag
+  --cached 
+  remove files from index only
+  "unstages" the file from the index
+  -f
+  remove a file if the file is not up to date with your last checked out commit
+  prevent you from removing a file that you have made changes to, but have not yet checked them in.
+  removes Copyright.txt from Working Area
+
+Moving files = Renaming files
+  Renaming is the same as Moving 
+  since the contents of one file is moved to a file with a new name
+
+Initial Status = clean
+1. mv menu.txt menu.md
+   moves contents from menu.txt to menu.md
+   git status
+   shows menu.txt deleted in working area
+   shows menu.md untracked in index
+2. git add menu.md
+   moves file to index
+3. git add menu.txt
+   moves deleted file to index
+   deleting menu.txt in index
+4. git status
+   all changes are staged
+   git shows "renamed: menu.txt -> menu.md
+   git knows it was a rename by
+   comparing contents in menu.md in working area and index
+   with contents in menu.txt in repository
+   it noticed that the content is the same
+   the only thing changed was the name
+5. git commit -m "Use Markdown for the menu"
+   git creates new commit with the name menu.md pointing to the original content of the menu.txt file
+   and moves the branch to this new commit
+
+Moving Files
+git mv menu.md menu.txt does the two operations in a single shot
+   moves contents of menu.md to menu.txt in working directory
+   then moves menu.txt to index
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
